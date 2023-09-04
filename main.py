@@ -10,6 +10,7 @@ from apps_module import open_app
 from ai_writer_module import generate_and_write_text
 from reminder_module import set_reminder, check_reminders
 import os
+from user_profiles_module import UserProfile
 
 def get_time_of_day_greeting():
     current_time = datetime.datetime.now().time()
@@ -24,10 +25,34 @@ def greet_with_name():
     speak("Hello, what's your name?")
     name = listen_for_command().strip()
     if name:
-        speak(f"Hello, {name}! I'm Jarvis, your personal voice assistant.")
-        speak("How can I assist you today?")
+        if name in user_profiles:
+            speak(f"Welcome back, {name}!")
+            if user_profiles[name].voice_sample is None:
+                speak("I don't have a voice sample for you. Would you like to set one? (Yes or No)")
+                response = listen_for_command().strip().lower()
+                if response == "yes":
+                    set_voice_sample(name)
+        else:
+            speak(f"Hello, {name}! I'm Jarvis, your personal voice assistant.")
+            speak("How can I assist you today?")
+            create_user_profile(name)
     else:
         speak("Hello there! I'm Jarvis, your personal voice assistant. What's on your mind?")
+
+def add_additional_info(name):
+    speak(f"Sure, {name}, please provide the name of the information you'd like to add.")
+    key = listen_for_command().strip()
+    speak(f"Got it, {name}. Now, please provide the value for '{key}'.")
+    value = listen_for_command().strip()
+    user_profiles[name].add_additional_info(key, value)
+    speak(f"Information '{key}' added successfully, {name}.")
+
+def get_additional_info(name, key):
+    value = user_profiles[name].get_additional_info(key)
+    if value:
+        speak(f"{name}, here is the information for '{key}': {value}")
+    else:
+        speak(f"I'm sorry, {name}, there is no information available for '{key}'.")
 
 def write_to_notepad(text):
     with open("speech_to_text.txt", "a") as file:
