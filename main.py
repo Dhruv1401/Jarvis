@@ -7,10 +7,47 @@ from weather_module import process_weather_command
 from calculator_module import add, subtract, multiply, divide
 from jokes_module import get_joke
 from apps_module import open_app
-from ai_writer_module import generate_and_write_text
 from reminder_module import set_reminder, check_reminders
 import os
 from user_profiles_module import UserProfile
+from language_support.hindi_input_module import HindiInputModule
+from language_support.french_input_module import FrenchInputModule
+
+hindi_input_module = HindiInputModule()
+hindi_mode = False  # Initially, Hindi mode is off
+french_input_module = FrenchInputModule()
+french_mode = False  # Initially, French mode is off
+
+def toggle_french_input(on=True):
+    french_input_module.toggle_french(on)
+
+def enable_french_mode():
+    global french_mode
+    french_mode = True
+    toggle_french_input(True)
+    speak("Mode français activé. Comment puis-je vous aider en français ?")
+
+def disable_french_mode():
+    global french_mode
+    french_mode = False
+    toggle_french_input(False)
+    speak("Mode français désactivé. Je suis prêt à vous aider en anglais.")
+
+
+def toggle_hindi_input(on=True):
+    hindi_input_module.toggle_hindi(on)
+
+def enable_hindi_mode():
+    global hindi_mode
+    hindi_mode = True
+    toggle_hindi_input(True)
+    speak("Hindi mode enabled. How can I assist you in Hindi?")
+
+def disable_hindi_mode():
+    global hindi_mode
+    hindi_mode = False
+    toggle_hindi_input(False)
+    speak("Hindi mode disabled. I'm ready to assist you in English.")
 
 def get_time_of_day_greeting():
     current_time = datetime.datetime.now().time()
@@ -47,12 +84,6 @@ def add_additional_info(name):
     user_profiles[name].add_additional_info(key, value)
     speak(f"Information '{key}' added successfully, {name}.")
 
-def get_additional_info(name, key):
-    value = user_profiles[name].get_additional_info(key)
-    if value:
-        speak(f"{name}, here is the information for '{key}': {value}")
-    else:
-        speak(f"I'm sorry, {name}, there is no information available for '{key}'.")
 
 def write_to_notepad(text):
     with open("speech_to_text.txt", "a") as file:
@@ -99,10 +130,34 @@ def process_command(command):
                 result = num1 / num2
             else:
                 result = "Cannot divide by zero"
+
         else:
             result = "I'm sorry, I didn't understand that operation."
 
         speak(f"The result is: {result}")
+    
+    elif "toggle hindi input" in command:
+        toggle_hindi_input(True)  # Enable Hindi input
+    elif "toggle english input" in command:
+        toggle_hindi_input(False)  # Disable Hindi input
+    elif "speak in hindi" in command:
+        enable_hindi_mode()  # Enable Hindi mode
+    elif "speak in english" in command:
+        disable_hindi_mode()  # Disable Hindi mode
+    elif "listen for hindi command" in command:
+        listen_for_hindi_command()
+
+    elif "toggle french input" in command:
+        toggle_french_input(True)  # Enable French input
+    elif "toggle english input" in command:
+        toggle_french_input(False)  # Disable French input
+    elif "speak in french" in command:
+        enable_french_mode()  # Enable French mode
+    elif "speak in english" in command:
+        disable_french_mode()  # Disable French mode
+    elif "listen for french command" in command:
+        listen_for_french_command()
+
 
     elif "set reminder" in command:
         speak("Sure, what should be the name of the reminder?")
